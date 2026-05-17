@@ -65,10 +65,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
 
         let host = NSHostingController(rootView: root)
         let pop = NSPopover()
-        // .applicationDefined keeps the popover open across app switches so the user
-        // can paste a code into another app without it auto-dismissing. They close
-        // it explicitly via the X button or by clicking the menu bar icon.
-        pop.behavior = .applicationDefined
+        // .transient: dismisses when the user clicks outside or switches apps.
+        // Codes are copied to the clipboard before any app switch, so we don't
+        // need the popover to persist across focus changes — and persisting
+        // made it too easy to get stuck inside the search field.
+        pop.behavior = .transient
         pop.contentSize = NSSize(width: 340, height: 480)
         pop.contentViewController = host
         self.popover = pop
@@ -86,6 +87,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             BiometricGate.shared.relock()
         } else {
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+            // Don't auto-focus any text field; the user types into Filter only
+            // after explicitly clicking it.
+            popover.contentViewController?.view.window?.makeFirstResponder(nil)
             popover.contentViewController?.view.window?.makeKey()
         }
     }

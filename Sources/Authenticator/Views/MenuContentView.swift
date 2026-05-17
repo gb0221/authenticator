@@ -51,6 +51,7 @@ struct MenuContentView: View {
             Divider()
             footer
         }
+        .background(escapeHandler)
         .onReceive(ticker) { now = $0 }
         .onAppear {
             // Auto-prompt for biometrics if required.
@@ -62,6 +63,24 @@ struct MenuContentView: View {
             SettingsView(isPresented: $settingsOpen)
                 .environmentObject(store)
         }
+    }
+
+    /// Hidden Button whose .cancelAction shortcut fires on Escape, even when
+    /// the search TextField has keyboard focus. Clears the filter first; if
+    /// the filter is empty, closes the popover.
+    private var escapeHandler: some View {
+        Button("") {
+            if !query.isEmpty {
+                query = ""
+                searchFocused = false
+            } else {
+                AppDelegate.shared.closePopover()
+            }
+        }
+        .keyboardShortcut(.cancelAction)
+        .opacity(0)
+        .frame(width: 0, height: 0)
+        .accessibilityHidden(true)
     }
 
     private var isLocked: Bool {
