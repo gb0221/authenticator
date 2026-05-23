@@ -77,14 +77,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
 
     func closePopover() {
         popover?.performClose(nil)
-        BiometricGate.shared.relock()
     }
 
     @objc private func togglePopover(_ sender: Any?) {
         guard let button = statusItem.button else { return }
         if popover.isShown {
             popover.performClose(nil)
-            BiometricGate.shared.relock()
         } else {
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
             // Don't auto-focus any text field; the user types into Filter only

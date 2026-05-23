@@ -23,7 +23,6 @@ Authy killed their desktop apps in 2024. The remaining Mac TOTP apps are either 
 - Import from Google Authenticator (*Transfer accounts → Export accounts*) — drop a screenshot of the QR, paste via ⌘V, or paste the URI as text.
 - Import individual `otpauth://totp/...` URIs from any other 2FA setup screen.
 - Export your vault back to `otpauth-migration://` URIs (multi-batch when large).
-- Optional **Touch ID gate** before codes are revealed (Settings → *Require Touch ID*).
 - **Open at login** toggle (`SMAppService`).
 - **HOTP** support with auto-incrementing counter on copy.
 - Single-instance — launching twice activates the running instance.
@@ -62,10 +61,6 @@ A lock-shield icon appears in your menu bar.
 
 Click *Export* in the popover footer, pick which accounts to include, click *Generate*. You get one or more `otpauth-migration://` URIs in the same format Google Authenticator emits — paste them into any compatible 2FA app, or render them as QRs with any QR generator.
 
-### Touch ID
-
-System Settings → toggle *Require Touch ID*. After enabling, every popover open shows a locked screen with an *Unlock* button. The gate re-locks on close, so each session requires fresh authentication.
-
 ## Architecture
 
 ```
@@ -78,8 +73,7 @@ Sources/Authenticator/
 ├── Storage/
 │   ├── Keychain.swift           Security.framework wrapper
 │   ├── AccountStore.swift       ObservableObject — metadata + Keychain access
-│   ├── Settings.swift           UserDefaults + SMAppService
-│   └── Biometrics.swift         LAContext gate
+│   └── Settings.swift           UserDefaults + SMAppService
 ├── Import/
 │   ├── Base32.swift             RFC 4648 decoder (for otpauth secret param)
 │   ├── Protobuf.swift           Hand-rolled proto wire-format reader + writer
@@ -91,7 +85,7 @@ Sources/Authenticator/
     ├── AccountRow.swift         One row: title, code, copy, countdown ring
     ├── ImportView.swift         Paste / drop / clipboard-paste flow
     ├── ExportView.swift         Account picker → otpauth-migration:// URIs
-    └── SettingsView.swift       Open-at-login + Touch ID toggles
+    └── SettingsView.swift       Open-at-login toggle
 ```
 
 ## Development

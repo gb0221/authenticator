@@ -30,8 +30,8 @@ What this app does **not** protect against:
 
 - An attacker with your unlocked macOS session and your login password.
 - Malware running on your Mac with your user privileges.
-- Physical access to an unlocked Mac (Touch ID gate helps but is a UX layer,
-  not a cryptographic one — the Keychain entries are accessible regardless).
+- Physical access to an unlocked Mac (Keychain entries are accessible while
+  the session is unlocked).
 
 If those threats are in your model, a hardware token (YubiKey) is a better fit
 than any TOTP app.

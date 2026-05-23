@@ -3,7 +3,6 @@ import AppKit
 
 struct MenuContentView: View {
     @EnvironmentObject var store: AccountStore
-    @StateObject private var gate = BiometricGate.shared
     @State private var now = Date()
     @State private var query: String = ""
     @State private var settingsOpen: Bool = false
@@ -24,15 +23,13 @@ struct MenuContentView: View {
         VStack(spacing: 0) {
             header
 
-            if !store.accounts.isEmpty && !isLocked {
+            if !store.accounts.isEmpty {
                 searchField
             }
 
             Divider()
 
-            if isLocked {
-                lockedState
-            } else if store.accounts.isEmpty {
+            if store.accounts.isEmpty {
                 emptyState
             } else if filtered.isEmpty {
                 noResults
@@ -53,12 +50,6 @@ struct MenuContentView: View {
         }
         .background(escapeHandler)
         .onReceive(ticker) { now = $0 }
-        .onAppear {
-            // Auto-prompt for biometrics if required.
-            if gate.isRequired && !gate.isUnlocked {
-                gate.unlock()
-            }
-        }
         .sheet(isPresented: $settingsOpen) {
             SettingsView(isPresented: $settingsOpen)
                 .environmentObject(store)
@@ -81,39 +72,6 @@ struct MenuContentView: View {
         .opacity(0)
         .frame(width: 0, height: 0)
         .accessibilityHidden(true)
-    }
-
-    private var isLocked: Bool {
-        gate.isRequired && !gate.isUnlocked
-    }
-
-    private var lockedState: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "lock.fill")
-                .font(.system(size: 30))
-                .foregroundStyle(.secondary)
-            Text("Locked")
-                .font(.headline)
-            if let err = gate.lastError {
-                Text(err)
-                    .font(.caption)
-                    .foregroundStyle(.red)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 16)
-            } else {
-                Text("Authenticate to reveal codes.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Button {
-                gate.unlock()
-            } label: {
-                Label("Unlock", systemImage: "touchid")
-            }
-            .buttonStyle(.borderedProminent)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 28)
     }
 
     private var header: some View {
